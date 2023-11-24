@@ -14,6 +14,10 @@
 </template>
 
 <script>
+import { db } from "@/firebase/config"
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore"
+import Cookies from "js-cookie"
+
 export default {
   data() {
     return {
@@ -23,12 +27,49 @@ export default {
       passportNumber: "",
       email: "",
       phone: "",
+      userRef: null,
     }
   },
+  created() {
+    this.getUserRef()
+  },
   methods: {
+    async getUserRef() {
+      const userEmail = Cookies.get("email")
+      if (userEmail) {
+        const usersRef = collection(db, "Users")
+        const q = query(usersRef, where("email", "==", userEmail))
+
+        try {
+          const querySnapshot = await getDocs(q)
+          if (!querySnapshot.empty) {
+            this.userRef = querySnapshot.docs[0].id // Assuming email is unique and gets one document
+          } else {
+            console.log("No user found with that email")
+          }
+        } catch (error) {
+          console.log("Error getting user:", error)
+        }
+      }
+    },
     submitForm() {
-      // Handle form submission
-      this.$emit("close")
+      // Add data to Firestore
+      addDoc(collection(db, "Identities"), {
+        name: this.name,
+        ssn: this.ssn,
+        licenseNumber: this.licenseNumber,
+        passportNumber: this.passportNumber,
+        email: this.email,
+        phone: this.phone,
+        userRef: this.userRef,
+      })
+        .then(() => {
+          console.log("Document successfully written!")
+          this.$emit("formSubmitted")
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error)
+        })
     },
   },
 }
