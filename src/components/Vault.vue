@@ -78,7 +78,7 @@
     </main>
 
     <DynamicModal :show="showModal" :title="modalTitle" @close="closeModal">
-      <component :is="currentFormComponent" />
+      <component :is="currentFormComponent" @formSubmitted="closeModal" />
     </DynamicModal>
   </div>
 </template>
