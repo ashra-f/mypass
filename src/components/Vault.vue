@@ -81,7 +81,10 @@
     </main>
 
     <DynamicModal :show="showModal" :title="modalTitle" @close="closeModal">
-      <component :is="currentFormComponent" @formSubmitted="closeModal" />
+      <component
+        :is="currentFormComponent"
+        @formSubmitted="handleFormSubmitted"
+      />
     </DynamicModal>
   </div>
 </template>
@@ -170,6 +173,10 @@ export default {
     },
   },
   methods: {
+    handleFormSubmitted() {
+      this.closeModal()
+      this.fetchItems()
+    },
     selectType(type) {
       this.selectedType = type
     },
