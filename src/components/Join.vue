@@ -80,6 +80,7 @@ export default {
         // Set session token as a cookie
         const sessionToken = btoa(new Date().getTime().toString())
         this.setCookie("sessionToken", sessionToken, 1) // Expires in 1 day
+        this.setCookie("email", this.email, 1) // Expires in 1 day
 
         // Redirect to vault page or other post-registration logic
         this.$router.push("/vault")

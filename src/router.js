@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router"
 import Homepage from "@/components/Homepage.vue"
 import Login from "@/components/Login.vue"
 import Join from "@/components/Join.vue"
+import Reset from "@/components/Reset.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,7 +22,11 @@ const router = createRouter({
       name: "Join",
       component: Join,
     },
-    // ... other routes
+    {
+      path: "/reset",
+      name: "Reset",
+      component: Reset,
+    },
   ],
 })
 
