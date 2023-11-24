@@ -39,6 +39,9 @@
 </template>
 
 <script>
+import { db } from "@/firebase/config"
+import { collection, addDoc } from "firebase/firestore"
+
 export default {
   name: "Join",
   data() {
@@ -56,9 +59,26 @@ export default {
     }
   },
   methods: {
-    register() {
-      // Implement registration logic
-      console.log("Registering:", this.email, this.password, this.answers)
+    async register() {
+      try {
+        // Save user data in Firestore
+        await addDoc(collection(db, "Users"), {
+          email: this.email, // Storing the email
+          password: this.password, // Storing the password (not secure)
+          securityQuestions: this.securityQuestions.map((question, index) => ({
+            question: question,
+            answer: this.answers[index],
+          })),
+          // Other user-related data can be stored here
+        })
+
+        // Redirect to vault page or other post-registration logic
+        this.$router.push("/vault")
+      } catch (error) {
+        console.error("Registration error:", error.message)
+        // Handle database errors
+        // Update UI with error message
+      }
     },
     generatePassword() {
       let length = 8,
