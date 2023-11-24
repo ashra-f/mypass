@@ -32,6 +32,11 @@ export default {
       password: "",
     }
   },
+  created() {
+    if (this.sessionTokenExists()) {
+      this.$router.push("/vault")
+    }
+  },
   methods: {
     async login() {
       try {
@@ -47,28 +52,36 @@ export default {
         querySnapshot.forEach((doc) => {
           const userData = doc.data()
           if (userData.password === this.password) {
-            // Password matches
             userExists = true
-            // Set up session (rudimentary example)
-            sessionStorage.setItem(
-              "user",
-              JSON.stringify({ email: this.email, uid: doc.id })
-            )
+            // Generate a session token
+            const sessionToken = btoa(new Date().getTime().toString())
+            // Set session token as a cookie
+            this.setCookie("sessionToken", sessionToken, 1) // Expires in 1 day
             // Redirect to vault
             this.$router.push("/vault")
           }
         })
 
         if (!userExists) {
-          // Handle login failure
           console.error("Invalid login credentials.")
-          // Update UI with error message
         }
       } catch (error) {
         console.error("Login error:", error.message)
-        // Handle database errors
-        // Update UI with error message
       }
+    },
+    sessionTokenExists() {
+      return document.cookie
+        .split(";")
+        .some((item) => item.trim().startsWith("sessionToken="))
+    },
+    setCookie(name, value, days) {
+      let expires = ""
+      if (days) {
+        let date = new Date()
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
+        expires = "; expires=" + date.toUTCString()
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/"
     },
   },
 }

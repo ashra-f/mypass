@@ -58,6 +58,11 @@ export default {
       passwordWarning: "",
     }
   },
+  created() {
+    if (this.sessionTokenExists()) {
+      this.$router.push("/vault")
+    }
+  },
   methods: {
     async register() {
       try {
@@ -72,6 +77,10 @@ export default {
           // Other user-related data can be stored here
         })
 
+        // Set session token as a cookie
+        const sessionToken = btoa(new Date().getTime().toString())
+        this.setCookie("sessionToken", sessionToken, 1) // Expires in 1 day
+
         // Redirect to vault page or other post-registration logic
         this.$router.push("/vault")
       } catch (error) {
@@ -79,6 +88,11 @@ export default {
         // Handle database errors
         // Update UI with error message
       }
+    },
+    sessionTokenExists() {
+      return document.cookie
+        .split(";")
+        .some((item) => item.trim().startsWith("sessionToken="))
     },
     generatePassword() {
       let length = 8,
