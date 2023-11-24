@@ -1,15 +1,12 @@
 <template>
   <div class="modal">
-    <h2>Add Login Item</h2>
     <form @submit.prevent="submitForm">
-      <input v-model="username" placeholder="Username" required />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
+      <input v-model="title" placeholder="Note Title" required />
+      <textarea
+        v-model="content"
+        placeholder="Note Content"
         required
-      />
-      <input v-model="url" placeholder="URL" required />
+      ></textarea>
       <button type="submit">Add</button>
       <button @click="$emit('close')">Cancel</button>
     </form>
@@ -20,9 +17,8 @@
 export default {
   data() {
     return {
-      username: "",
-      password: "",
-      url: "",
+      title: "",
+      content: "",
     }
   },
   methods: {

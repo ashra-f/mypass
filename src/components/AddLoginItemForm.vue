@@ -1,9 +1,14 @@
 <template>
   <div class="modal">
-    <h2>Add Card Item</h2>
     <form @submit.prevent="submitForm">
-      <input v-model="cardNumber" placeholder="Card Number" required />
-      <input v-model="cvv" placeholder="CVV" required />
+      <input v-model="username" placeholder="Username" required />
+      <input
+        v-model="password"
+        type="password"
+        placeholder="Password"
+        required
+      />
+      <input v-model="url" placeholder="URL" required />
       <button type="submit">Add</button>
       <button @click="$emit('close')">Cancel</button>
     </form>
@@ -14,8 +19,9 @@
 export default {
   data() {
     return {
-      cardNumber: "",
-      cvv: "",
+      username: "",
+      password: "",
+      url: "",
     }
   },
   methods: {

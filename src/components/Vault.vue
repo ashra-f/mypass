@@ -76,13 +76,29 @@
         </div>
       </div>
     </main>
+
+    <DynamicModal :show="showModal" :title="modalTitle" @close="closeModal">
+      <component :is="currentFormComponent" />
+    </DynamicModal>
   </div>
 </template>
 
 <script>
+import DynamicModal from "./DynamicModal.vue"
+import AddLoginItemForm from "./AddLoginItemForm.vue"
+import AddCardItemForm from "./AddCardItemForm.vue"
+import AddSecureNoteForm from "./AddSecureNoteForm.vue"
+import AddIdentityItemForm from "./AddIdentityItemForm.vue"
+
 export default {
   name: "Vault",
-  components: {},
+  components: {
+    DynamicModal,
+    AddLoginItemForm,
+    AddCardItemForm,
+    AddSecureNoteForm,
+    AddIdentityItemForm,
+  },
   data() {
     return {
       selectedType: "Login",
@@ -94,19 +110,35 @@ export default {
       secureNotes: [], // This should be populated with data from your database
     }
   },
+  computed: {
+    currentFormComponent() {
+      switch (this.selectedType) {
+        case "Login":
+          return AddLoginItemForm
+        case "Card":
+          return AddCardItemForm
+        case "Secure Note":
+          return AddSecureNoteForm
+        case "Identity":
+          return AddIdentityItemForm
+        default:
+          return null
+      }
+    },
+  },
   methods: {
     selectType(type) {
       this.selectedType = type
     },
     addItem() {
-      this.$modal.show("dynamic-modal", {
-        title: "Add New " + this.selectedType,
-        // Any other modal options or content here
-      })
+      this.openModal("Add New " + this.selectedType)
+    },
+    openModal(title) {
+      this.showModal = true
+      this.modalTitle = title
     },
     closeModal() {
       this.showModal = false
-      this.modalType = null
     },
   },
   // In a real application, you'd fetch the items from your backend in the created or mounted lifecycle hooks

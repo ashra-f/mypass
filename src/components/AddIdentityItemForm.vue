@@ -1,6 +1,5 @@
 <template>
   <div class="modal">
-    <h2>Add Identity Item</h2>
     <form @submit.prevent="submitForm">
       <input v-model="name" placeholder="Name" required />
       <input v-model="ssn" placeholder="Social Security Number" required />

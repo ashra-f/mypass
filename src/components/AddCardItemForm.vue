@@ -1,13 +1,8 @@
 <template>
   <div class="modal">
-    <h2>Add Secure Note</h2>
     <form @submit.prevent="submitForm">
-      <input v-model="title" placeholder="Note Title" required />
-      <textarea
-        v-model="content"
-        placeholder="Note Content"
-        required
-      ></textarea>
+      <input v-model="cardNumber" placeholder="Card Number" required />
+      <input v-model="cvv" placeholder="CVV" required />
       <button type="submit">Add</button>
       <button @click="$emit('close')">Cancel</button>
     </form>
@@ -18,8 +13,8 @@
 export default {
   data() {
     return {
-      title: "",
-      content: "",
+      cardNumber: "",
+      cvv: "",
     }
   },
   methods: {
