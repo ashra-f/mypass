@@ -3,6 +3,7 @@ import Homepage from "@/components/Homepage.vue"
 import Login from "@/components/Login.vue"
 import Join from "@/components/Join.vue"
 import Reset from "@/components/Reset.vue"
+import Vault from "@/components/Vault.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: "/reset",
       name: "Reset",
       component: Reset,
+    },
+    {
+      path: "/vault",
+      name: "Vault",
+      component: Vault,
     },
   ],
 })
