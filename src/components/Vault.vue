@@ -5,71 +5,74 @@
         <h3>TYPES</h3>
         <div
           class="item"
-          :class="{ active: selectedType === 'Login' }"
-          @click="selectType('Login')"
+          :class="{ active: selectedType === 'Logins' }"
+          @click="selectType('Logins')"
         >
-          Login
+          Logins
         </div>
         <div
           class="item"
-          :class="{ active: selectedType === 'Card' }"
-          @click="selectType('Card')"
+          :class="{ active: selectedType === 'Cards' }"
+          @click="selectType('Cards')"
         >
-          Card
+          Cards
         </div>
         <div
           class="item"
-          :class="{ active: selectedType === 'Identity' }"
-          @click="selectType('Identity')"
+          :class="{ active: selectedType === 'Identities' }"
+          @click="selectType('Identities')"
         >
-          Identity
+          Identities
         </div>
         <div
           class="item"
-          :class="{ active: selectedType === 'Secure Note' }"
-          @click="selectType('Secure Note')"
+          :class="{ active: selectedType === 'Notes' }"
+          @click="selectType('Notes')"
         >
-          Secure Note
+          Secure Notes
         </div>
       </div>
     </aside>
     <main class="content">
       <div class="content-header">
-        <button @click="addItem">+ Add Item</button>
+        <button @click="addItem">+ Add {{ selectedType }}</button>
       </div>
       <div class="vault-items">
-        <div v-if="selectedType === 'Login'">
+        <div v-if="selectedType === 'Logins'">
           <h2>Login Items</h2>
           <ul v-if="loginItems.length">
-            <li v-for="item in loginItems" :key="item.id">
-              {{ item.name }} - {{ item.details }}
+            <li v-for="item in loginItems" :key="item.username">
+              Username: {{ item.username }}, URL: {{ item.url }}
             </li>
           </ul>
-          <div v-else>You have no Login items.</div>
+          <div v-else>No login items found.</div>
         </div>
-        <div v-if="selectedType === 'Card'">
+        <div v-if="selectedType === 'Cards'">
           <h2>Card Items</h2>
           <ul v-if="cardItems.length">
             <li v-for="item in cardItems" :key="item.id">
-              {{ item.name }} - {{ item.details }}
+              Card Number: {{ item.cardNumber }}, CVV: {{ item.cvv }},
             </li>
           </ul>
           <div v-else>You have no Card items.</div>
         </div>
-        <div v-if="selectedType === 'Identity'">
+        <div v-if="selectedType === 'Identities'">
           <h2>Identity Items</h2>
           <ul v-if="identityItems.length">
             <li v-for="item in identityItems" :key="item.id">
-              {{ item.name }} - {{ item.details }}
+              Email: {{ item.email }}, name: {{ item.name }}, License Number:
+              {{ item.licenseNumber }}, Passport Number:
+              {{ item.passportNumber }}, Phone: {{ item.phone }}, SSN:
+              {{ item.ssn }},
             </li>
           </ul>
           <div v-else>You have no Identity items.</div>
         </div>
-        <div v-if="selectedType === 'Secure Note'">
+        <div v-if="selectedType === 'Notes'">
           <h2>Secure Notes</h2>
           <ul v-if="secureNotes.length">
             <li v-for="note in secureNotes" :key="note.id">
-              {{ note.title }} - {{ note.content }}
+              Title: {{ note.title }}, Content: {{ note.content }},
             </li>
           </ul>
           <div v-else>You have no Secure Notes.</div>
@@ -89,6 +92,9 @@ import AddLoginItemForm from "./AddLoginItemForm.vue"
 import AddCardItemForm from "./AddCardItemForm.vue"
 import AddSecureNoteForm from "./AddSecureNoteForm.vue"
 import AddIdentityItemForm from "./AddIdentityItemForm.vue"
+import Cookies from "js-cookie"
+import { db } from "@/firebase/config"
+import { collection, query, where, getDocs } from "firebase/firestore"
 
 export default {
   name: "Vault",
@@ -101,29 +107,66 @@ export default {
   },
   data() {
     return {
-      selectedType: "Login",
+      selectedType: "Logins", // Ensure this matches the Firestore collection names
       showModal: false,
-      modalType: null,
-      loginItems: [], // This should be populated with data from your database
-      cardItems: [], // This should be populated with data from your database
-      identityItems: [], // This should be populated with data from your database
-      secureNotes: [], // This should be populated with data from your database
+      userRef: null, // Store the user reference here
+      loginItems: [],
+      cardItems: [],
+      identityItems: [],
+      secureNotes: [],
     }
+  },
+  watch: {
+    selectedType() {
+      this.fetchItems()
+    },
   },
   computed: {
     currentFormComponent() {
       switch (this.selectedType) {
-        case "Login":
+        case "Logins":
           return AddLoginItemForm
-        case "Card":
+        case "Cards":
           return AddCardItemForm
-        case "Secure Note":
+        case "Notes":
           return AddSecureNoteForm
-        case "Identity":
+        case "Identities":
           return AddIdentityItemForm
         default:
           return null
       }
+    },
+    currentItems: {
+      get() {
+        switch (this.selectedType) {
+          case "Logins":
+            return this.loginItems
+          case "Cards":
+            return this.cardItems
+          case "Identities":
+            return this.identityItems
+          case "Notes":
+            return this.secureNotes
+          default:
+            return []
+        }
+      },
+      set(newValue) {
+        switch (this.selectedType) {
+          case "Logins":
+            this.loginItems = newValue
+            break
+          case "Cards":
+            this.cardItems = newValue
+            break
+          case "Identities":
+            this.identityItems = newValue
+            break
+          case "Notes":
+            this.secureNotes = newValue
+            break
+        }
+      },
     },
   },
   methods: {
@@ -140,10 +183,42 @@ export default {
     closeModal() {
       this.showModal = false
     },
+    async getUserRef() {
+      const userEmail = Cookies.get("email")
+      if (userEmail) {
+        const usersRef = collection(db, "Users")
+        const q = query(usersRef, where("email", "==", userEmail))
+        try {
+          const querySnapshot = await getDocs(q)
+          if (!querySnapshot.empty) {
+            this.userRef = querySnapshot.docs[0].id
+          } else {
+            console.log("No user found with that email")
+          }
+        } catch (error) {
+          console.log("Error getting user:", error)
+        }
+      }
+    },
+    async fetchItems() {
+      if (!this.userRef) {
+        await this.getUserRef()
+        if (!this.userRef) return
+      }
+
+      try {
+        const itemsRef = collection(db, this.selectedType)
+        const itemsQuery = query(itemsRef, where("userRef", "==", this.userRef))
+        const itemsSnapshot = await getDocs(itemsQuery)
+
+        this.currentItems = itemsSnapshot.docs.map((doc) => doc.data())
+      } catch (error) {
+        console.error("Error fetching items:", error)
+      }
+    },
   },
-  // In a real application, you'd fetch the items from your backend in the created or mounted lifecycle hooks
   created() {
-    // Fetch items for each type and populate the corresponding arrays
+    this.fetchItems()
   },
 }
 </script>
