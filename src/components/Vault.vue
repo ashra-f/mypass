@@ -424,7 +424,10 @@ export default {
 
       const resetTimer = () => {
         clearTimeout(inactivityTimer)
-        inactivityTimer = setTimeout(() => this.handleInactivityLogout(), 60000) // 10 minutes
+        inactivityTimer = setTimeout(
+          () => this.handleInactivityLogout(),
+          600000
+        ) // 10 minutes
       }
 
       // Add event listeners for various user actions
