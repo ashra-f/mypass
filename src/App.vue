@@ -1,12 +1,18 @@
 <template>
   <div id="app">
+    <Banner />
     <router-view />
   </div>
 </template>
 
 <script>
+import Banner from "./components/Banner.vue"
+
 export default {
   name: "App",
+  components: {
+    Banner,
+  },
 }
 </script>
 
@@ -17,6 +23,13 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #f5f5f5;
 }
 </style>

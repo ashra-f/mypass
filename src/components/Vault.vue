@@ -620,14 +620,25 @@ export default {
 /* Base Layout */
 #vault {
   display: flex;
+  min-height: 100vh; /* Ensures the container takes up the full viewport height */
+  background-color: #f5f5f5; /* Lighter background for main content */
 }
 
 .sidebar {
   width: 250px;
+  background-color: #333; /* Darker background for sidebar */
+  border-right: 2px solid #ccc; /* Added border */
+  color: #fff; /* Text color for better contrast */
+  padding: 20px; /* Increased padding for inner spacing */
+  min-height: 100vh; /* Full height for sidebar */
+  box-sizing: border-box; /* Ensures padding doesn't add to the width */
 }
 
 .content {
   flex-grow: 1;
+  padding: 20px; /* Consistent padding for spacing */
+  min-height: 100vh; /* Full height for main content */
+  box-sizing: border-box; /* Ensures padding doesn't add to the width */
 }
 
 /* Content Header */
@@ -635,30 +646,38 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  margin-bottom: 20px; /* Added bottom margin */
 }
 
 .content-header h2 {
-  margin: 0;
+  color: #333; /* Dark text color for headers */
+}
+
+/* Add Button - Orange Style */
+.content-header button {
+  background-color: orange;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.content-header button:hover {
+  background-color: darkorange; /* Darker shade on hover */
 }
 
 /* Vault Items and List */
-.vault-items .items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .vault-items .item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  margin-bottom: 10px; /* Added bottom margin for spacing */
 }
 
 .item-type {
   cursor: pointer;
+  margin-bottom: 10px; /* Spacing between types */
 }
 
 .item-type.active {
@@ -667,47 +686,18 @@ export default {
 }
 
 .item-type:hover {
-  color: rgb(207, 135, 1);
+  color: lightgrey; /* Lighter color on hover */
 }
 
-/* Item Details */
-.vault-items .item-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.vault-items .item-details .credential {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px; /* Added spacing between username and password sections */
-}
-
-.vault-items .item-details .item-url {
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 10px; /* Spacing under URL */
-}
-
-.vault-items .item-details .item-username,
-.vault-items .item-details .item-password {
-  font-size: 1em;
-  margin-right: 10px; /* Spacing between text and first button */
-}
-
-/* Styles for Edit and Delete Buttons */
-.item-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
+/* Edit and Delete Button Styles */
 .edit-btn {
-  color: #4caf50; /* Green */
+  color: #4caf50; /* Green for edit */
 }
 
 .delete-btn {
-  color: #f44336; /* Red */
+  color: #f44336; /* Red for delete */
 }
+
 .btn {
   padding: 5px 10px;
   margin: 0 5px;
@@ -715,6 +705,10 @@ export default {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.9em;
+  transition: background-color 0.2s; /* Transition for hover effect */
+}
+
+.btn:hover {
+  background-color: #e0e0e0; /* Slightly darker on hover */
 }
 </style>
