@@ -39,30 +39,27 @@
         <button @click="addItem">+ Add {{ displayTypeTitle }}</button>
       </div>
       <div class="vault-items">
-        <!-- Login Section -->
+        <!-- Logins Section -->
         <div v-if="selectedType === 'Logins'">
           <div v-for="item in loginItems" :key="item.id" class="item">
             <div v-if="item.editMode">
-              <!-- Editable Fields for Card -->
-              <label>Card Number:</label>
-              <input
-                :type="item.cardNumberMasked ? 'password' : 'text'"
-                v-model="item.cardNumber"
-                placeholder="Enter Card Number"
-              />
-              <button class="btn" @click="toggleMask(item, 'cardNumber')">
-                Toggle
-              </button>
+              <!-- Editable Fields for Logins -->
+              <label>URL:</label>
+              <input type="text" v-model="item.url" placeholder="Enter URL" />
 
-              <label>CVV:</label>
+              <label>Username:</label>
               <input
-                :type="item.cvvMasked ? 'password' : 'text'"
-                v-model="item.cvv"
-                placeholder="Enter CVV"
+                type="text"
+                v-model="item.username"
+                placeholder="Enter Username"
               />
-              <button class="btn" @click="toggleMask(item, 'cvv')">
-                Toggle
-              </button>
+
+              <label>Password:</label>
+              <input
+                type="text"
+                v-model="item.password"
+                placeholder="Enter Password"
+              />
 
               <button class="btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
@@ -187,33 +184,20 @@
 
               <label>Passport Number:</label>
               <input
-                :type="item.passportNumberMasked ? 'password' : 'text'"
+                type="text"
                 v-model="item.passportNumber"
                 placeholder="Passport Number"
               />
-              <button class="btn" @click="toggleMask(item, 'passportNumber')">
-                Toggle
-              </button>
 
               <label>License Number:</label>
               <input
-                :type="item.licenseNumberMasked ? 'password' : 'text'"
+                type="text"
                 v-model="item.licenseNumber"
                 placeholder="License Number"
               />
-              <button class="btn" @click="toggleMask(item, 'licenseNumber')">
-                Toggle
-              </button>
 
               <label>SSN:</label>
-              <input
-                :type="item.ssnMasked ? 'password' : 'text'"
-                v-model="item.ssn"
-                placeholder="SSN"
-              />
-              <button class="btn" @click="toggleMask(item, 'ssn')">
-                Toggle
-              </button>
+              <input type="text" v-model="item.ssn" placeholder="SSN" />
 
               <button class="btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
