@@ -39,21 +39,26 @@
         <button @click="addItem">+ Add {{ displayTypeTitle }}</button>
       </div>
       <div class="vault-items">
+        <!-- Login Section -->
         <div v-if="selectedType === 'Logins'">
           <div v-for="item in loginItems" :key="item.id" class="item">
             <div v-if="item.editMode">
               <!-- Editable Fields for Card -->
+              <label>Card Number:</label>
               <input
                 :type="item.cardNumberMasked ? 'password' : 'text'"
                 v-model="item.cardNumber"
+                placeholder="Enter Card Number"
               />
               <button class="btn" @click="toggleMask(item, 'cardNumber')">
                 Toggle
               </button>
 
+              <label>CVV:</label>
               <input
                 :type="item.cvvMasked ? 'password' : 'text'"
                 v-model="item.cvv"
+                placeholder="Enter CVV"
               />
               <button class="btn" @click="toggleMask(item, 'cvv')">
                 Toggle
@@ -62,6 +67,7 @@
               <button class="btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
             </div>
+
             <div v-else>
               <!-- Display Mode -->
               <div class="credential">
@@ -104,13 +110,27 @@
               </div>
             </div>
           </div>
+
+          <!-- Check if there are no logins -->
+          <div v-if="loginItems.length === 0">
+            <p>No logins found.</p>
+          </div>
         </div>
+        <!-- Cards Section -->
         <div v-if="selectedType === 'Cards'">
           <div v-for="item in cardItems" :key="item.id" class="item">
             <div v-if="item.editMode">
               <!-- Editable Fields for Card -->
-              <input type="text" v-model="item.cardNumber" />
-              <input type="text" v-model="item.cvv" />
+              <label>Card Number:</label>
+              <input
+                type="text"
+                v-model="item.cardNumber"
+                placeholder="Enter Card Number"
+              />
+
+              <label>CVV:</label>
+              <input type="text" v-model="item.cvv" placeholder="Enter CVV" />
+
               <button class="btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
             </div>
@@ -145,25 +165,138 @@
               </div>
             </div>
           </div>
+
+          <!-- Check if there are no cards -->
+          <div v-if="cardItems.length === 0">
+            <p>No cards found.</p>
+          </div>
         </div>
+        <!-- Identities Section -->
         <div v-if="selectedType === 'Identities'">
-          <ul v-if="identityItems.length">
-            <li v-for="item in identityItems" :key="item.id">
-              Email: {{ item.email }}, name: {{ item.name }}, License Number:
-              {{ item.licenseNumber }}, Passport Number:
-              {{ item.passportNumber }}, Phone: {{ item.phone }}, SSN:
-              {{ item.ssn }},
-            </li>
-          </ul>
-          <div v-else>You have no Identity items.</div>
+          <div v-for="item in identityItems" :key="item.id" class="item">
+            <div v-if="item.editMode">
+              <!-- Editable Fields for Identities -->
+              <label>Name:</label>
+              <input type="text" v-model="item.name" placeholder="Name" />
+
+              <label>Email:</label>
+              <input type="text" v-model="item.email" placeholder="Email" />
+
+              <label>Phone:</label>
+              <input type="text" v-model="item.phone" placeholder="Phone" />
+
+              <label>Passport Number:</label>
+              <input
+                :type="item.passportNumberMasked ? 'password' : 'text'"
+                v-model="item.passportNumber"
+                placeholder="Passport Number"
+              />
+              <button class="btn" @click="toggleMask(item, 'passportNumber')">
+                Toggle
+              </button>
+
+              <label>License Number:</label>
+              <input
+                :type="item.licenseNumberMasked ? 'password' : 'text'"
+                v-model="item.licenseNumber"
+                placeholder="License Number"
+              />
+              <button class="btn" @click="toggleMask(item, 'licenseNumber')">
+                Toggle
+              </button>
+
+              <label>SSN:</label>
+              <input
+                :type="item.ssnMasked ? 'password' : 'text'"
+                v-model="item.ssn"
+                placeholder="SSN"
+              />
+              <button class="btn" @click="toggleMask(item, 'ssn')">
+                Toggle
+              </button>
+
+              <button class="btn" @click="saveItem(item)">Save</button>
+              <button class="btn" @click="cancelEdit(item)">Cancel</button>
+            </div>
+            <div v-else>
+              <!-- Display Mode for Identities -->
+              <div>Name: {{ item.name }}</div>
+              <div>Email: {{ item.email }}</div>
+              <div>Phone: {{ item.phone }}</div>
+
+              <div>
+                Passport Number:
+                {{ item.passportNumberMasked ? "••••••" : item.passportNumber }}
+                <button class="btn" @click="toggleMask(item, 'passportNumber')">
+                  Toggle
+                </button>
+              </div>
+
+              <div>
+                License Number:
+                {{ item.licenseNumberMasked ? "••••••" : item.licenseNumber }}
+                <button class="btn" @click="toggleMask(item, 'licenseNumber')">
+                  Toggle
+                </button>
+              </div>
+
+              <div>
+                SSN: {{ item.ssnMasked ? "••••••" : item.ssn }}
+                <button class="btn" @click="toggleMask(item, 'ssn')">
+                  Toggle
+                </button>
+              </div>
+
+              <div class="item-actions">
+                <button class="btn edit-btn" @click="editItem(item)">
+                  Edit
+                </button>
+                <button class="btn delete-btn" @click="deleteItem(item)">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Check if there are no identities -->
+          <div v-if="identityItems.length === 0">
+            <p>No identities found.</p>
+          </div>
         </div>
+        <!-- Secure Notes Section -->
         <div v-if="selectedType === 'Notes'">
-          <ul v-if="secureNotes.length">
-            <li v-for="note in secureNotes" :key="note.id">
-              Title: {{ note.title }}, Content: {{ note.content }},
-            </li>
-          </ul>
-          <div v-else>You have no Secure Notes.</div>
+          <div v-for="note in secureNotes" :key="note.id" class="item">
+            <div v-if="note.editMode">
+              <!-- Editable Fields for Secure Notes -->
+              <label>Title:</label>
+              <input type="text" v-model="note.title" placeholder="Title" />
+
+              <label>Content:</label>
+              <textarea v-model="note.content" placeholder="Content"></textarea>
+
+              <button class="btn" @click="saveItem(note)">Save</button>
+              <button class="btn" @click="cancelEdit(note)">Cancel</button>
+            </div>
+            <div v-else>
+              <!-- Display Mode for Secure Notes -->
+              <div>Title: {{ note.title }}</div>
+              <div>Content: {{ note.content }}</div>
+
+              <div class="item-actions">
+                <button class="btn edit-btn" @click="editItem(note)">
+                  Edit
+                </button>
+                <button class="btn delete-btn" @click="deleteItem(note)">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Check if there are no secure notes -->
+          <div v-if="secureNotes.length === 0">
+            <p>No secure notes found.</p>
+          </div>
         </div>
       </div>
     </main>
@@ -338,6 +471,9 @@ export default {
           passwordMasked: true,
           cardNumberMasked: true,
           cvvMasked: true,
+          passportNumberMasked: true,
+          licenseNumberMasked: true,
+          ssnMasked: true,
         }))
       } catch (error) {
         console.error("Error fetching items:", error)
@@ -391,17 +527,32 @@ export default {
         })
     },
     toggleMask(item, field) {
-      if (field === "cardNumber") {
-        item.cardNumberMasked = !item.cardNumberMasked
-      } else if (field === "cvv") {
-        item.cvvMasked = !item.cvvMasked
-      } else {
-        // Existing logic for username and password
-        if (field === "username") {
+      switch (field) {
+        case "username":
           item.usernameMasked = !item.usernameMasked
-        } else if (field === "password") {
+          break
+        case "password":
           item.passwordMasked = !item.passwordMasked
-        }
+          break
+        case "cardNumber":
+          item.cardNumberMasked = !item.cardNumberMasked
+          break
+        case "cvv":
+          item.cvvMasked = !item.cvvMasked
+          break
+        case "passportNumber":
+          item.passportNumberMasked = !item.passportNumberMasked
+          break
+        case "licenseNumber":
+          item.licenseNumberMasked = !item.licenseNumberMasked
+          break
+        case "ssn":
+          item.ssnMasked = !item.ssnMasked
+          break
+        // Add additional cases as needed
+        default:
+          // Optionally handle any unrecognized field
+          console.warn(`toggleMask: Unhandled field ${field}`)
       }
     },
   },
