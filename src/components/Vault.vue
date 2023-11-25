@@ -340,9 +340,10 @@ export default {
   },
   data() {
     return {
-      selectedType: "Logins", // Ensure this matches the Firestore collection names
+      selectedType: "Logins",
+      clipboardMessage: "",
       showModal: false,
-      userRef: null, // Store the user reference here
+      userRef: null,
       loginItems: [],
       cardItems: [],
       identityItems: [],
@@ -545,14 +546,29 @@ export default {
         alert("There was an error updating the item.")
       }
     },
+    clearClipboardMessage() {
+      navigator.clipboard.writeText("").then(() => {
+        this.clipboardMessage = "Copied to clipboard"
+        alert("Copied to clipboard")
+        setTimeout(() => {
+          this.clipboardMessage = "" // Clear the message after 15 seconds
+          alert("Clipboard cleared")
+        }, 15000)
+      })
+    },
     copyToClipboard(text) {
       navigator.clipboard
         .writeText(text)
         .then(() => {
+          this.clipboardMessage = "Copied to clipboard"
           alert("Copied to clipboard")
+          setTimeout(() => {
+            this.clearClipboardMessage()
+          }, 15000)
         })
         .catch((err) => {
           console.error("Could not copy text: ", err)
+          this.clipboardMessage = "Error copying text"
         })
     },
     toggleMask(item, field) {
