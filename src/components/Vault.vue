@@ -60,6 +60,9 @@
                 v-model="item.password"
                 placeholder="Enter Password"
               />
+              <span v-if="isPasswordShort(item.password)" class="warning"
+                >Warning: Password is less than 8 characters!</span
+              >
 
               <button class="btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
@@ -399,6 +402,11 @@ export default {
           return "Secure Note"
         default:
           return ""
+      }
+    },
+    isPasswordShort() {
+      return function (password) {
+        return password.length > 0 && password.length < 8
       }
     },
   },
