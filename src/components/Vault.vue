@@ -542,14 +542,24 @@ export default {
       }
     },
     clearClipboardMessage() {
-      navigator.clipboard.writeText("").then(() => {
-        this.clipboardMessage = "Copied to clipboard"
-        alert("Copied to clipboard")
-        setTimeout(() => {
-          this.clipboardMessage = "" // Clear the message after 15 seconds
-          alert("Clipboard cleared")
-        }, 15000)
-      })
+      if (!document.hasFocus()) {
+        console.error("Document is not focused. Unable to clear clipboard.")
+        return
+      }
+
+      navigator.clipboard
+        .writeText("")
+        .then(() => {
+          this.clipboardMessage = "Copied to clipboard"
+          alert("Copied to clipboard")
+          setTimeout(() => {
+            this.clipboardMessage = "" // Clear the message after 15 seconds
+            alert("Clipboard cleared")
+          }, 15000)
+        })
+        .catch((error) => {
+          console.error("Error clearing clipboard:", error)
+        })
     },
     copyToClipboard(text) {
       navigator.clipboard
