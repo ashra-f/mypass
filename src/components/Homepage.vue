@@ -17,6 +17,16 @@ export default {
     goToJoin() {
       this.$router.push("/join")
     },
+    sessionTokenExists() {
+      return document.cookie
+        .split(";")
+        .some((item) => item.trim().startsWith("sessionToken="))
+    },
+  },
+  created() {
+    if (this.sessionTokenExists()) {
+      this.$router.push("/vault")
+    }
   },
 }
 </script>

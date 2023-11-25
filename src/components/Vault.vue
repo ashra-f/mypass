@@ -418,6 +418,35 @@ export default {
     },
   },
   methods: {
+    setupInactivityTimer() {
+      let inactivityTimer
+
+      const resetTimer = () => {
+        clearTimeout(inactivityTimer)
+        inactivityTimer = setTimeout(() => this.handleInactivityLogout(), 60000) // 10 minutes
+      }
+
+      // Add event listeners for various user actions
+      document.addEventListener("mousemove", resetTimer)
+      document.addEventListener("keypress", resetTimer)
+      document.addEventListener("click", resetTimer)
+
+      // Initialize timer
+      resetTimer()
+    },
+    handleInactivityLogout() {
+      console.log("Logging out due to inactivity.")
+
+      // Remove cookies
+      Cookies.remove("sessionToken")
+      Cookies.remove("email")
+
+      // Redirect to login page with a message
+      const message = encodeURIComponent(
+        "You've been logged out due to inactivity."
+      )
+      window.location.href = `/login?message=${message}`
+    },
     handleFormSubmitted() {
       this.closeModal()
       this.fetchItems()
@@ -558,6 +587,10 @@ export default {
   },
   created() {
     this.fetchItems()
+  },
+  mounted() {
+    this.fetchItems()
+    this.setupInactivityTimer()
   },
 }
 </script>

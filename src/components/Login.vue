@@ -1,6 +1,7 @@
 <template>
   <div class="login">
     <h1>Login</h1>
+    <div v-if="loginMessage" class="login-message">{{ loginMessage }}</div>
     <form @submit.prevent="login">
       <div>
         <label for="email">Email:</label>
@@ -30,11 +31,18 @@ export default {
     return {
       email: "",
       password: "",
+      loginMessage: "", // Add a data property for the login message
     }
   },
   created() {
     if (this.sessionTokenExists()) {
       this.$router.push("/vault")
+    } else {
+      // Check for a message in the URL
+      const queryMessage = this.$route.query.message
+      if (queryMessage) {
+        this.loginMessage = decodeURIComponent(queryMessage)
+      }
     }
   },
   methods: {
