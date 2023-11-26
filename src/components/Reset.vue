@@ -43,13 +43,6 @@
           @input="updatePasswordStrength"
           required
         />
-        <button @click="togglePasswordVisibility('newPassword')">
-          Show Password
-        </button>
-        <!-- Show Password Button -->
-        <div class="password-feedback warning">
-          {{ passwordStrengthFeedback }}
-        </div>
       </div>
       <div>
         <label for="repeatNewPassword">Repeat New Password:</label>
@@ -59,12 +52,17 @@
           v-model="repeatNewPassword"
           required
         />
-        <button @click="togglePasswordVisibility('repeatNewPassword')">
-          Show Password
-        </button>
-        <!-- Show Password Button -->
       </div>
-      <button type="submit">Reset Password</button>
+      <button type="button" @click="togglePasswordVisibility">
+        Show Password
+      </button>
+      <button type="button" @click="generatePassword">
+        Generate Strong Password
+      </button>
+      <div class="password-feedback warning">
+        {{ passwordStrengthFeedback }}
+      </div>
+      <button type="submit" class="reset-submission-btn">Reset Password</button>
     </form>
   </div>
 </template>
@@ -86,6 +84,7 @@ import {
   ChildhoodNicknameHandler,
 } from "../SecurityQuestionHandler"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordBuilder from "../PasswordBuilder"
 
 export default {
   name: "Reset",
@@ -166,11 +165,19 @@ export default {
     updatePasswordStrength() {
       this.passwordObserver.notify(this.newPassword)
     },
-    togglePasswordVisibility(fieldId) {
-      const field = document.getElementById(fieldId)
-      if (field) {
-        field.type = this.showPassword ? "password" : "text"
-      }
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword
+    },
+    generatePassword() {
+      const builder = new PasswordBuilder()
+        .setLength(12)
+        .includeNumbers(true)
+        .includeUpperCaseLetters(true)
+        .includeLowerCaseLetters(true)
+        .includeSpecialCharacters(true)
+
+      this.newPassword = this.repeatNewPassword = builder.build()
+      this.updatePasswordStrength()
     },
   },
   created() {
@@ -195,5 +202,22 @@ export default {
   padding-bottom: 1rem;
   font-size: 0.9em;
   font-weight: bold;
+}
+
+.reset-submission-btn {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #fcac34;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.1em;
+  border: none;
+  cursor: pointer;
+}
+
+.reset-submission-btn:hover {
+  background-color: #fcbf6b;
 }
 </style>

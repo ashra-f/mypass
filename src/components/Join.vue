@@ -107,9 +107,10 @@ export default {
     generatePassword() {
       const builder = new PasswordBuilder()
         .setLength(12)
-        .includeNumbers()
-        .includeUpperCaseLetters()
-        .includeLowerCaseLetters()
+        .includeNumbers(true)
+        .includeUpperCaseLetters(true)
+        .includeLowerCaseLetters(true)
+        .includeSpecialCharacters(true)
 
       let newPassword = builder.build()
       this.passwordStrengthObserver.notify(newPassword)
