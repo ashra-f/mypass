@@ -9,13 +9,13 @@
       <div>
         <label for="password">Password:</label>
         <input
-          :type="showPassword ? 'text' : 'password'"
+          :type="passwordProxy.isDataMasked() ? 'password' : 'text'"
           id="password"
           v-model="password"
           required
         />
         <button type="button" @click="togglePasswordVisibility">
-          {{ showPassword ? "Hide" : "Show" }}
+          {{ passwordProxy.isDataMasked() ? "Show" : "Hide" }}
         </button>
         <button type="button" @click="generatePassword">
           Generate Password
@@ -49,6 +49,7 @@ import {
   ChildhoodNicknameHandler,
 } from "../SecurityQuestionHandler"
 import PasswordBuilder from "../PasswordBuilder"
+import SensitiveDataProxy from "@/SensitiveDataProxy"
 
 export default {
   name: "Join",
@@ -56,7 +57,6 @@ export default {
     return {
       email: "",
       password: "",
-      showPassword: false,
       securityQuestionHandlers: [
         new TeacherNameHandler(),
         new FirstPetNameHandler(),
@@ -67,6 +67,7 @@ export default {
 
       passwordWarning: "",
       passwordStrengthObserver: null,
+      passwordProxy: new SensitiveDataProxy(""),
     }
   },
   created() {
@@ -119,15 +120,16 @@ export default {
       this.password = newPassword
     },
     togglePasswordVisibility() {
-      this.showPassword = !this.showPassword
+      this.passwordProxy.toggleMask()
     },
     updatePasswordWarning(message) {
       this.passwordWarning = message
     },
   },
   watch: {
-    password() {
-      this.passwordStrengthObserver.notify(this.password)
+    password(newVal) {
+      this.passwordStrengthObserver.notify(newVal)
+      this.passwordProxy.setData(newVal)
     },
   },
 }
