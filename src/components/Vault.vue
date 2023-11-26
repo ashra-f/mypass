@@ -35,7 +35,7 @@
     </aside>
     <main class="content">
       <div class="content-header">
-        <h2>{{ displayTypeTitle }} Items</h2>
+        <h2>My {{ selectedType }}</h2>
         <button @click="addItem">+ Add {{ displayTypeTitle }}</button>
       </div>
       <div class="vault-items">
@@ -60,11 +60,11 @@
                 v-model="item.password"
                 placeholder="Enter Password"
               />
-              <span v-if="isPasswordShort(item.password)" class="warning"
-                >Warning: Password is less than 8 characters!</span
-              >
+              <div v-if="isPasswordShort(item.password)" class="warning">
+                Warning: Password is less than 8 characters!
+              </div>
 
-              <button class="btn" @click="saveItem(item)">Save</button>
+              <button class="btn save-btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
             </div>
 
@@ -131,7 +131,7 @@
               <label>CVV:</label>
               <input type="text" v-model="item.cvv" placeholder="Enter CVV" />
 
-              <button class="btn" @click="saveItem(item)">Save</button>
+              <button class="btn save-btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
             </div>
             <div v-else>
@@ -202,7 +202,7 @@
               <label>SSN:</label>
               <input type="text" v-model="item.ssn" placeholder="SSN" />
 
-              <button class="btn" @click="saveItem(item)">Save</button>
+              <button class="btn save-btn" @click="saveItem(item)">Save</button>
               <button class="btn" @click="cancelEdit(item)">Cancel</button>
             </div>
             <div v-else>
@@ -261,7 +261,7 @@
               <label>Content:</label>
               <textarea v-model="note.content" placeholder="Content"></textarea>
 
-              <button class="btn" @click="saveItem(note)">Save</button>
+              <button class="btn save-btn" @click="saveItem(note)">Save</button>
               <button class="btn" @click="cancelEdit(note)">Cancel</button>
             </div>
             <div v-else>
@@ -620,24 +620,23 @@ export default {
 /* Base Layout */
 #vault {
   display: flex;
-  min-height: 100vh; /* Ensures the container takes up the full viewport height */
-  background-color: #f5f5f5; /* Lighter background for main content */
+  background-color: #f5f5f5;
+  padding: 20px;
 }
 
 .sidebar {
+  height: 300px;
   width: 250px;
   background-color: #333; /* Darker background for sidebar */
-  border-right: 2px solid #ccc; /* Added border */
+  border-radius: 5px;
   color: #fff; /* Text color for better contrast */
   padding: 20px; /* Increased padding for inner spacing */
-  min-height: 100vh; /* Full height for sidebar */
   box-sizing: border-box; /* Ensures padding doesn't add to the width */
 }
 
 .content {
   flex-grow: 1;
   padding: 20px; /* Consistent padding for spacing */
-  min-height: 100vh; /* Full height for main content */
   box-sizing: border-box; /* Ensures padding doesn't add to the width */
 }
 
@@ -710,5 +709,59 @@ export default {
 
 .btn:hover {
   background-color: #e0e0e0; /* Slightly darker on hover */
+}
+
+.vault-items .item {
+  background-color: #fff; /* Light background */
+  border: 1px solid #ddd; /* Lighter border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 10px; /* Rounded corners */
+  padding: 15px; /* Increased padding */
+  margin-bottom: 15px; /* Spacing between items */
+  transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.vault-items .item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.vault-items .credential {
+  margin-bottom: 10px; /* Spacing between credentials */
+}
+
+.vault-items label {
+  font-weight: bold; /* Bold labels */
+}
+
+.vault-items input[type="text"],
+.vault-items textarea {
+  width: 100%; /* Full width inputs */
+  padding: 8px;
+  margin-bottom: 10px; /* Spacing after inputs */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.vault-items .credential span {
+  display: block; /* Block display for better readability */
+  color: #333; /* Darker color for text */
+  margin-bottom: 5px; /* Spacing after each credential */
+}
+
+.vault-items .item-actions {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+}
+
+.save-btn {
+  background-color: #4caf50; /* Green for save */
+  color: #fff;
+}
+
+.warning {
+  color: #fbbf64;
+  padding-bottom: 1rem;
+  font-size: 0.9em;
+  font-weight: bold;
 }
 </style>

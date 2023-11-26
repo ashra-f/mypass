@@ -80,7 +80,7 @@ export default {
   cursor: pointer;
   outline: inherit;
   margin: 0;
-  font-size: 3rem;
+  font-size: 2rem;
 }
 
 .navigation button {
