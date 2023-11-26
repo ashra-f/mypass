@@ -48,6 +48,7 @@ import {
   FirstPetNameHandler,
   ChildhoodNicknameHandler,
 } from "../SecurityQuestionHandler"
+import PasswordBuilder from "../PasswordBuilder"
 
 export default {
   name: "Join",
@@ -104,14 +105,17 @@ export default {
       }
     },
     generatePassword() {
-      let length = 8,
-        charset =
-          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        retVal = ""
-      for (let i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt(Math.floor(Math.random() * n))
-      }
-      this.password = retVal
+      const builder = new PasswordBuilder()
+        .setLength(12)
+        .includeNumbers()
+        .includeUpperCaseLetters()
+        .includeLowerCaseLetters()
+
+      let newPassword = builder.build()
+      this.passwordStrengthObserver.notify(newPassword)
+
+      // You can add additional logic here to handle the case if the password is still considered weak.
+      this.password = newPassword
     },
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword

@@ -17,9 +17,15 @@ export default class PasswordStrengthObserver {
     const hasNumbers = /\d/.test(password)
     const hasMixedCase =
       password !== password.toLowerCase() && password !== password.toUpperCase()
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password)
 
-    if (password.length < 8 || !hasNumbers || !hasMixedCase) {
-      return "Weak password: should be at least 8 characters long, include both numbers and mixed case letters."
+    if (
+      password.length < 8 ||
+      !hasNumbers ||
+      !hasMixedCase ||
+      !hasSpecialChars
+    ) {
+      return "Weak password: should be at least 8 characters long and include numbers, mixed case letters, and special characters."
     }
     return ""
   }
