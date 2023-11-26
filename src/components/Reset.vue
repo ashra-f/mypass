@@ -37,24 +37,25 @@
       <div>
         <label for="newPassword">New Password:</label>
         <input
-          :type="showPassword ? 'text' : 'password'"
+          :type="newPasswordProxy.isDataMasked() ? 'password' : 'text'"
           id="newPassword"
-          v-model="newPassword"
-          @input="updatePasswordStrength"
+          v-model.lazy="newPassword"
           required
         />
       </div>
       <div>
         <label for="repeatNewPassword">Repeat New Password:</label>
         <input
-          :type="showPassword ? 'text' : 'password'"
+          :type="repeatNewPasswordProxy.isDataMasked() ? 'password' : 'text'"
           id="repeatNewPassword"
-          v-model="repeatNewPassword"
+          v-model.lazy="repeatNewPassword"
           required
         />
       </div>
       <button type="button" @click="togglePasswordVisibility">
-        Show Password
+        {{
+          newPasswordProxy.isDataMasked() ? "Show Password" : "Hide Password"
+        }}
       </button>
       <button type="button" @click="generatePassword">
         Generate Strong Password
@@ -85,6 +86,7 @@ import {
 } from "../SecurityQuestionHandler"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
 import PasswordBuilder from "../PasswordBuilder"
+import SensitiveDataProxy from "@/SensitiveDataProxy"
 
 export default {
   name: "Reset",
@@ -103,7 +105,8 @@ export default {
       userDocId: null,
       passwordObserver: new PasswordStrengthObserver(),
       passwordStrengthFeedback: "",
-      showPassword: false,
+      newPasswordProxy: new SensitiveDataProxy(""),
+      repeatNewPasswordProxy: new SensitiveDataProxy(""),
       errorMessage: "",
     }
   },
@@ -166,7 +169,8 @@ export default {
       this.passwordObserver.notify(this.newPassword)
     },
     togglePasswordVisibility() {
-      this.showPassword = !this.showPassword
+      this.newPasswordProxy.toggleMask()
+      this.repeatNewPasswordProxy.toggleMask()
     },
     generatePassword() {
       const builder = new PasswordBuilder()
@@ -192,6 +196,15 @@ export default {
     this.passwordObserver.subscribe((feedback) => {
       this.passwordStrengthFeedback = feedback
     })
+  },
+  watch: {
+    newPassword(newVal) {
+      this.newPasswordProxy.setData(newVal)
+      this.updatePasswordStrength()
+    },
+    repeatNewPassword(newVal) {
+      this.repeatNewPasswordProxy.setData(newVal)
+    },
   },
 }
 </script>
