@@ -44,9 +44,12 @@
           <div v-for="item in loginItems" :key="item.id" class="item">
             <div v-if="item.editMode">
               <!-- Editable Fields for Logins -->
+
+              <!-- URL -->
               <label>URL:</label>
               <input type="text" v-model="item.url" placeholder="Enter URL" />
 
+              <!-- Username -->
               <label>Username:</label>
               <input
                 type="text"
@@ -54,13 +57,24 @@
                 placeholder="Enter Username"
               />
 
+              <!-- Password -->
               <label>Password:</label>
-              <input
-                type="text"
-                v-model="item.password"
-                placeholder="Enter Password"
-                @input="checkPasswordStrength(item)"
-              />
+              <div class="password-field">
+                <input
+                  type="text"
+                  v-model="item.password"
+                  placeholder="Enter Password"
+                  @input="checkPasswordStrength(item)"
+                  class="password-input"
+                />
+                <button
+                  type="button"
+                  @click="generatePasswordForItem(item)"
+                  class="btn-generate-password"
+                >
+                  Generate
+                </button>
+              </div>
               <div class="password-feedback" v-if="passwordFeedback">
                 {{ passwordFeedback }}
               </div>
@@ -318,6 +332,7 @@ import {
   doc,
 } from "firebase/firestore"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordBuilder from "../PasswordBuilder"
 
 export default {
   name: "Vault",
@@ -610,6 +625,17 @@ export default {
     checkPasswordStrength(item) {
       this.passwordObserver.notify(item.password)
     },
+    generatePasswordForItem(item) {
+      const builder = new PasswordBuilder()
+        .setLength(12) // Adjust the length as needed
+        .includeNumbers(true)
+        .includeUpperCaseLetters(true)
+        .includeLowerCaseLetters(true)
+        .includeSpecialCharacters(true)
+
+      item.password = builder.build()
+      this.checkPasswordStrength(item)
+    },
   },
   created() {
     const sessionManager = SessionManager.getInstance()
@@ -772,5 +798,26 @@ export default {
   padding-bottom: 1rem;
   font-size: 0.9em;
   font-weight: bold;
+}
+
+.btn-generate-password {
+  margin-left: 10px;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+.password-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-input {
+  margin: 0 !important;
 }
 </style>
