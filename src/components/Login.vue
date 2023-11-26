@@ -24,6 +24,7 @@
 <script>
 import { db } from "@/firebase/config"
 import { collection, query, where, getDocs } from "firebase/firestore"
+import SessionManager from "../SessionManager"
 
 export default {
   name: "Login",
@@ -31,14 +32,16 @@ export default {
     return {
       email: "",
       password: "",
-      loginMessage: "", // Add a data property for the login message
+      loginMessage: "",
     }
   },
   created() {
-    if (this.sessionTokenExists()) {
+    const sessionManager = SessionManager.getInstance()
+    sessionManager.checkLoginStatus()
+
+    if (sessionManager.isLoggedIn) {
       this.$router.push("/vault")
     } else {
-      // Check for a message in the URL
       const queryMessage = this.$route.query.message
       if (queryMessage) {
         this.loginMessage = decodeURIComponent(queryMessage)
@@ -48,7 +51,6 @@ export default {
   methods: {
     async login() {
       try {
-        // Query Firestore for user data
         const q = query(
           collection(db, "Users"),
           where("email", "==", this.email)
@@ -61,38 +63,22 @@ export default {
           const userData = doc.data()
           if (userData.password === this.password) {
             userExists = true
-            // Generate a session token
+            const sessionManager = SessionManager.getInstance()
+
+            // Generate a session token and use SessionManager to log in
             const sessionToken = btoa(new Date().getTime().toString())
+            sessionManager.logIn(this.email, sessionToken)
 
-            // Set session token as a cookie
-            this.setCookie("sessionToken", sessionToken, 1) // Expires in 1 day
-            this.setCookie("email", this.email, 1) // Expires in 1 day
-
-            // Redirect to vault
             this.$router.push("/vault")
           }
         })
 
         if (!userExists) {
-          console.error("Invalid login credentials.")
+          this.loginMessage = "Invalid login credentials."
         }
       } catch (error) {
         console.error("Login error:", error.message)
       }
-    },
-    sessionTokenExists() {
-      return document.cookie
-        .split(";")
-        .some((item) => item.trim().startsWith("sessionToken="))
-    },
-    setCookie(name, value, days) {
-      let expires = ""
-      if (days) {
-        let date = new Date()
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
-        expires = "; expires=" + date.toUTCString()
-      }
-      document.cookie = name + "=" + (value || "") + expires + "; path=/"
     },
   },
 }

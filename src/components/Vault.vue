@@ -304,6 +304,7 @@ import AddLoginItemForm from "./AddLoginItemForm.vue"
 import AddCardItemForm from "./AddCardItemForm.vue"
 import AddSecureNoteForm from "./AddSecureNoteForm.vue"
 import AddIdentityItemForm from "./AddIdentityItemForm.vue"
+import SessionManager from "../SessionManager"
 import Cookies from "js-cookie"
 import { db } from "@/firebase/config"
 import {
@@ -433,15 +434,13 @@ export default {
     handleInactivityLogout() {
       console.log("Logging out due to inactivity.")
 
-      // Remove cookies
-      Cookies.remove("sessionToken")
-      Cookies.remove("email")
+      const sessionManager = SessionManager.getInstance()
+      sessionManager.logOut()
 
-      // Redirect to login page with a message
       const message = encodeURIComponent(
         "You've been logged out due to inactivity."
       )
-      window.location.href = `/login?message=${message}`
+      this.$router.push({ path: "/login", query: { message } })
     },
     handleFormSubmitted() {
       this.closeModal()
@@ -607,7 +606,15 @@ export default {
     },
   },
   created() {
-    this.fetchItems()
+    const sessionManager = SessionManager.getInstance()
+    sessionManager.checkLoginStatus()
+
+    if (!sessionManager.isLoggedIn) {
+      const message = encodeURIComponent("Please log in to access your vault.")
+      this.$router.push({ path: "/login", query: { message } })
+    } else {
+      this.fetchItems()
+    }
   },
   mounted() {
     this.fetchItems()
@@ -668,12 +675,6 @@ export default {
 }
 
 /* Vault Items and List */
-.vault-items .item {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 10px; /* Added bottom margin for spacing */
-}
-
 .item-type {
   cursor: pointer;
   margin-bottom: 10px; /* Spacing between types */

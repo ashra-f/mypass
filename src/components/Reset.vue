@@ -63,6 +63,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore"
+import SessionManager from "../SessionManager"
 
 export default {
   name: "Reset",
@@ -140,6 +141,14 @@ export default {
         // Handle mismatched passwords
       }
     },
+  },
+  created() {
+    const sessionManager = SessionManager.getInstance()
+    sessionManager.checkLoginStatus()
+
+    if (sessionManager.isLoggedIn) {
+      this.$router.push("/vault")
+    }
   },
 }
 </script>

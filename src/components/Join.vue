@@ -41,6 +41,7 @@
 <script>
 import { db } from "@/firebase/config"
 import { collection, addDoc } from "firebase/firestore"
+import SessionManager from "../SessionManager" // Import SessionManager
 
 export default {
   name: "Join",
@@ -59,7 +60,10 @@ export default {
     }
   },
   created() {
-    if (this.sessionTokenExists()) {
+    const sessionManager = SessionManager.getInstance()
+    sessionManager.checkLoginStatus()
+
+    if (sessionManager.isLoggedIn) {
       this.$router.push("/vault")
     }
   },
@@ -68,32 +72,24 @@ export default {
       try {
         // Save user data in Firestore
         await addDoc(collection(db, "Users"), {
-          email: this.email, // Storing the email
-          password: this.password, // Storing the password (not secure)
+          email: this.email,
+          password: this.password, // Storing the password (not secure, should be hashed)
           securityQuestions: this.securityQuestions.map((question, index) => ({
             question: question,
             answer: this.answers[index],
           })),
-          // Other user-related data can be stored here
         })
 
-        // Set session token as a cookie
-        const sessionToken = btoa(new Date().getTime().toString())
-        this.setCookie("sessionToken", sessionToken, 1) // Expires in 1 day
-        this.setCookie("email", this.email, 1) // Expires in 1 day
+        const sessionManager = SessionManager.getInstance()
 
-        // Redirect to vault page or other post-registration logic
+        // Generate a session token and use SessionManager to log in
+        const sessionToken = btoa(new Date().getTime().toString())
+        sessionManager.logIn(this.email, sessionToken)
+
         this.$router.push("/vault")
       } catch (error) {
         console.error("Registration error:", error.message)
-        // Handle database errors
-        // Update UI with error message
       }
-    },
-    sessionTokenExists() {
-      return document.cookie
-        .split(";")
-        .some((item) => item.trim().startsWith("sessionToken="))
     },
     generatePassword() {
       let length = 8,

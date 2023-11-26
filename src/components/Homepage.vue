@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import SessionManager from "../SessionManager"
+
 export default {
   name: "Homepage",
   methods: {
@@ -17,14 +19,12 @@ export default {
     goToJoin() {
       this.$router.push("/join")
     },
-    sessionTokenExists() {
-      return document.cookie
-        .split(";")
-        .some((item) => item.trim().startsWith("sessionToken="))
-    },
   },
   created() {
-    if (this.sessionTokenExists()) {
+    const sessionManager = SessionManager.getInstance()
+    sessionManager.checkLoginStatus()
+
+    if (sessionManager.isLoggedIn) {
       this.$router.push("/vault")
     }
   },
