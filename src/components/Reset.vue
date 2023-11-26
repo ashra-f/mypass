@@ -64,6 +64,11 @@ import {
   doc,
 } from "firebase/firestore"
 import SessionManager from "../SessionManager"
+import {
+  TeacherNameHandler,
+  FirstPetNameHandler,
+  ChildhoodNicknameHandler,
+} from "../SecurityQuestionHandler"
 
 export default {
   name: "Reset",
@@ -71,11 +76,10 @@ export default {
     return {
       userEmail: "",
       emailSubmitted: false,
-      securityQuestions: [
-        "What's your third-grade teacher's name?",
-        "What was the name of your first pet?",
-        "What was your childhood nickname?",
-      ],
+      handlerChain: new TeacherNameHandler(
+        new FirstPetNameHandler(new ChildhoodNicknameHandler())
+      ),
+      securityQuestions: [],
       answers: ["", "", ""],
       showPasswordReset: false,
       newPassword: "",
@@ -89,7 +93,6 @@ export default {
     },
     async validateSecurityQuestions() {
       try {
-        // Query Firestore for user data based on email
         const q = query(
           collection(db, "Users"),
           where("email", "==", this.userEmail)
@@ -100,49 +103,47 @@ export default {
 
         querySnapshot.forEach((doc) => {
           const userData = doc.data()
-          if (
-            userData.securityQuestions.every(
-              (q, index) => q.answer === this.answers[index]
-            )
-          ) {
+          if (this.handlerChain.handleRequest(this.answers, userData)) {
             userDoc = doc
           }
         })
 
         if (userDoc) {
-          this.userDocId = userDoc.id // Save user document ID for password reset
-          this.showPasswordReset = true // Show password reset form
+          this.userDocId = userDoc.id
+          this.showPasswordReset = true
         } else {
           console.error("Security questions answered incorrectly.")
-          // Handle incorrect answers
         }
       } catch (error) {
         console.error("Error validating security questions:", error.message)
-        // Handle database errors
       }
     },
     async resetPassword() {
       if (this.newPassword === this.repeatNewPassword) {
         try {
-          // Update the user's password in Firestore
           await updateDoc(doc(db, "Users", this.userDocId), {
             password: this.newPassword,
           })
 
-          // Redirect or show success message
           console.log("Password successfully reset")
-          // Optionally redirect to login page
           this.$router.push("/login")
         } catch (error) {
           console.error("Error resetting password:", error.message)
         }
       } else {
         console.error("Passwords do not match.")
-        // Handle mismatched passwords
+      }
+    },
+    generateSecurityQuestions() {
+      let handler = this.handlerChain
+      while (handler) {
+        this.securityQuestions.push(handler.question)
+        handler = handler.nextHandler
       }
     },
   },
   created() {
+    this.generateSecurityQuestions()
     const sessionManager = SessionManager.getInstance()
     sessionManager.checkLoginStatus()
 
