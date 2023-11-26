@@ -2,6 +2,10 @@
   <div class="reset">
     <h1>Reset Password</h1>
 
+    <div class="error-message" style="color: red" v-if="errorMessage">
+      {{ errorMessage }}
+    </div>
+
     <!-- Step 1: Request Email -->
     <form v-if="!emailSubmitted" @submit.prevent="submitEmail">
       <div>
@@ -33,20 +37,32 @@
       <div>
         <label for="newPassword">New Password:</label>
         <input
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
           id="newPassword"
           v-model="newPassword"
+          @input="updatePasswordStrength"
           required
         />
+        <button @click="togglePasswordVisibility('newPassword')">
+          Show Password
+        </button>
+        <!-- Show Password Button -->
+        <div class="password-feedback warning">
+          {{ passwordStrengthFeedback }}
+        </div>
       </div>
       <div>
         <label for="repeatNewPassword">Repeat New Password:</label>
         <input
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
           id="repeatNewPassword"
           v-model="repeatNewPassword"
           required
         />
+        <button @click="togglePasswordVisibility('repeatNewPassword')">
+          Show Password
+        </button>
+        <!-- Show Password Button -->
       </div>
       <button type="submit">Reset Password</button>
     </form>
@@ -69,6 +85,7 @@ import {
   FirstPetNameHandler,
   ChildhoodNicknameHandler,
 } from "../SecurityQuestionHandler"
+import PasswordStrengthObserver from "../PasswordStrengthObserver"
 
 export default {
   name: "Reset",
@@ -85,6 +102,10 @@ export default {
       newPassword: "",
       repeatNewPassword: "",
       userDocId: null,
+      passwordObserver: new PasswordStrengthObserver(),
+      passwordStrengthFeedback: "",
+      showPassword: false,
+      errorMessage: "",
     }
   },
   methods: {
@@ -110,16 +131,20 @@ export default {
 
         if (userDoc) {
           this.userDocId = userDoc.id
+          this.errorMessage = ""
           this.showPasswordReset = true
         } else {
-          console.error("Security questions answered incorrectly.")
+          this.errorMessage = "Security questions not answered correctly."
         }
       } catch (error) {
         console.error("Error validating security questions:", error.message)
       }
     },
     async resetPassword() {
-      if (this.newPassword === this.repeatNewPassword) {
+      if (
+        this.newPassword === this.repeatNewPassword &&
+        this.passwordStrengthFeedback === ""
+      ) {
         try {
           await updateDoc(doc(db, "Users", this.userDocId), {
             password: this.newPassword,
@@ -131,7 +156,8 @@ export default {
           console.error("Error resetting password:", error.message)
         }
       } else {
-        console.error("Passwords do not match.")
+        this.errorMessage =
+          "Passwords do not match or password strength requirements not met."
       }
     },
     generateSecurityQuestions() {
@@ -139,6 +165,15 @@ export default {
       while (handler) {
         this.securityQuestions.push(handler.question)
         handler = handler.nextHandler
+      }
+    },
+    updatePasswordStrength() {
+      this.passwordObserver.notify(this.newPassword)
+    },
+    togglePasswordVisibility(fieldId) {
+      const field = document.getElementById(fieldId)
+      if (field) {
+        field.type = this.showPassword ? "password" : "text"
       }
     },
   },
@@ -150,10 +185,19 @@ export default {
     if (sessionManager.isLoggedIn) {
       this.$router.push("/vault")
     }
+
+    this.passwordObserver.subscribe((feedback) => {
+      this.passwordStrengthFeedback = feedback
+    })
   },
 }
 </script>
 
 <style>
-/* Add CSS styling as needed */
+.warning {
+  color: #fcac34;
+  padding-bottom: 1rem;
+  font-size: 0.9em;
+  font-weight: bold;
+}
 </style>

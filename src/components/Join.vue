@@ -20,9 +20,9 @@
         <button type="button" @click="generatePassword">
           Generate Password
         </button>
-        <span v-if="passwordWarning" class="password-warning">{{
-          passwordWarning
-        }}</span>
+        <div v-if="passwordWarning" class="password-warning">
+          {{ passwordWarning }}
+        </div>
       </div>
       <div v-for="(question, index) in securityQuestions" :key="index">
         <label :for="'question' + index">{{ question }}</label>
@@ -41,7 +41,13 @@
 <script>
 import { db } from "@/firebase/config"
 import { collection, addDoc } from "firebase/firestore"
-import SessionManager from "../SessionManager" // Import SessionManager
+import SessionManager from "../SessionManager"
+import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import {
+  TeacherNameHandler,
+  FirstPetNameHandler,
+  ChildhoodNicknameHandler,
+} from "../SecurityQuestionHandler"
 
 export default {
   name: "Join",
@@ -49,14 +55,17 @@ export default {
     return {
       email: "",
       password: "",
-      answers: ["", "", ""],
       showPassword: false,
-      securityQuestions: [
-        "What's your third-grade teacher's name?",
-        "What was the name of your first pet?",
-        "What was your childhood nickname?",
+      securityQuestionHandlers: [
+        new TeacherNameHandler(),
+        new FirstPetNameHandler(),
+        new ChildhoodNicknameHandler(),
       ],
+      securityQuestions: [],
+      answers: ["", "", ""],
+
       passwordWarning: "",
+      passwordStrengthObserver: null,
     }
   },
   created() {
@@ -66,14 +75,19 @@ export default {
     if (sessionManager.isLoggedIn) {
       this.$router.push("/vault")
     }
+
+    this.securityQuestions = this.securityQuestionHandlers.map(
+      (handler) => handler.question
+    )
+    this.passwordStrengthObserver = new PasswordStrengthObserver()
+    this.passwordStrengthObserver.subscribe(this.updatePasswordWarning)
   },
   methods: {
     async register() {
       try {
-        // Save user data in Firestore
         await addDoc(collection(db, "Users"), {
           email: this.email,
-          password: this.password, // Storing the password (not secure, should be hashed)
+          password: this.password,
           securityQuestions: this.securityQuestions.map((question, index) => ({
             question: question,
             answer: this.answers[index],
@@ -81,8 +95,6 @@ export default {
         })
 
         const sessionManager = SessionManager.getInstance()
-
-        // Generate a session token and use SessionManager to log in
         const sessionToken = btoa(new Date().getTime().toString())
         sessionManager.logIn(this.email, sessionToken)
 
@@ -104,23 +116,13 @@ export default {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword
     },
-    checkPasswordStrength() {
-      const hasNumbers = /\d/.test(this.password)
-      const hasMixedCase =
-        this.password !== this.password.toLowerCase() &&
-        this.password !== this.password.toUpperCase()
-
-      if (this.password.length < 8 || !hasNumbers || !hasMixedCase) {
-        this.passwordWarning =
-          "Weak password: should be at least 8 characters long, include both numbers and mixed case letters."
-      } else {
-        this.passwordWarning = ""
-      }
+    updatePasswordWarning(message) {
+      this.passwordWarning = message
     },
   },
   watch: {
-    password(newVal) {
-      this.checkPasswordStrength()
+    password() {
+      this.passwordStrengthObserver.notify(this.password)
     },
   },
 }
