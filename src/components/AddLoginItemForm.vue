@@ -27,6 +27,13 @@
           >
             {{ passwordFieldType === "password" ? "Show" : "Hide" }}
           </button>
+          <button
+            type="button"
+            class="btn-generate-password"
+            @click="generatePassword"
+          >
+            Generate
+          </button>
         </div>
         <div class="password-feedback">{{ passwordFeedback }}</div>
       </div>
@@ -50,6 +57,7 @@ import { db } from "@/firebase/config"
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore"
 import Cookies from "js-cookie"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordBuilder from "../PasswordBuilder"
 
 export default {
   data() {
@@ -110,6 +118,17 @@ export default {
     togglePasswordVisibility() {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password"
+    },
+    generatePassword() {
+      const builder = new PasswordBuilder()
+        .setLength(12)
+        .includeNumbers(true)
+        .includeUpperCaseLetters(true)
+        .includeLowerCaseLetters(true)
+        .includeSpecialCharacters(true)
+
+      this.password = builder.build()
+      this.checkPasswordStrength()
     },
   },
 }
@@ -211,5 +230,16 @@ export default {
 .modal {
   width: 500px;
   margin: 0 auto;
+}
+
+.btn-generate-password {
+  margin-left: 10px;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  background-color: #eee;
+  border: 1px solid #ccc;
 }
 </style>
