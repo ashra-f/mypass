@@ -59,9 +59,10 @@
                 type="text"
                 v-model="item.password"
                 placeholder="Enter Password"
+                @input="checkPasswordStrength(item)"
               />
-              <div v-if="isPasswordShort(item.password)" class="warning">
-                Warning: Password is less than 8 characters!
+              <div class="password-feedback" v-if="passwordFeedback">
+                {{ passwordFeedback }}
               </div>
 
               <button class="btn save-btn" @click="saveItem(item)">Save</button>
@@ -316,6 +317,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore"
+import PasswordStrengthObserver from "../PasswordStrengthObserver"
 
 export default {
   name: "Vault",
@@ -336,6 +338,8 @@ export default {
       cardItems: [],
       identityItems: [],
       secureNotes: [],
+      passwordObserver: new PasswordStrengthObserver(),
+      passwordFeedback: "",
     }
   },
   watch: {
@@ -600,6 +604,12 @@ export default {
           console.warn(`toggleMask: Unhandled field ${field}`)
       }
     },
+    updatePasswordFeedback(feedback) {
+      this.passwordFeedback = feedback
+    },
+    checkPasswordStrength(item) {
+      this.passwordObserver.notify(item.password)
+    },
   },
   created() {
     const sessionManager = SessionManager.getInstance()
@@ -611,6 +621,8 @@ export default {
     } else {
       this.fetchItems()
     }
+
+    this.passwordObserver.subscribe(this.updatePasswordFeedback)
   },
   mounted() {
     this.fetchItems()
