@@ -141,10 +141,7 @@ export default {
       }
     },
     async resetPassword() {
-      if (
-        this.newPassword === this.repeatNewPassword &&
-        this.passwordStrengthFeedback === ""
-      ) {
+      if (this.newPassword === this.repeatNewPassword) {
         try {
           await updateDoc(doc(db, "Users", this.userDocId), {
             password: this.newPassword,
@@ -156,8 +153,7 @@ export default {
           console.error("Error resetting password:", error.message)
         }
       } else {
-        this.errorMessage =
-          "Passwords do not match or password strength requirements not met."
+        this.errorMessage = "Passwords do not match."
       }
     },
     generateSecurityQuestions() {

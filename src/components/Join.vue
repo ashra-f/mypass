@@ -130,7 +130,8 @@ export default {
 
 <style>
 .password-warning {
-  color: red;
+  color: rgb(247, 176, 69);
+  font-weight: bold;
 }
 /* Add more CSS styling as needed */
 </style>
