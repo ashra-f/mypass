@@ -333,6 +333,7 @@ import {
 } from "firebase/firestore"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
 import PasswordBuilder from "../PasswordBuilder"
+import VaultMediator from "../VaultMediator"
 
 export default {
   name: "Vault",
@@ -355,6 +356,7 @@ export default {
       secureNotes: [],
       passwordObserver: new PasswordStrengthObserver(),
       passwordFeedback: "",
+      mediator: null,
     }
   },
   watch: {
@@ -469,7 +471,7 @@ export default {
       this.selectedType = type
     },
     addItem() {
-      this.openModal("Add New " + this.selectedType)
+      this.mediator.openForm(this.selectedType)
     },
     openModal(title) {
       this.showModal = true
@@ -638,6 +640,7 @@ export default {
     },
   },
   created() {
+    this.mediator = new VaultMediator(this)
     const sessionManager = SessionManager.getInstance()
     sessionManager.checkLoginStatus()
 
