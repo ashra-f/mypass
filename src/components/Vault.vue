@@ -331,7 +331,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore"
-import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordStrengthSubject from "../PasswordStrengthSubject"
 import PasswordBuilder from "../PasswordBuilder"
 import VaultMediator from "../VaultMediator"
 
@@ -354,7 +354,7 @@ export default {
       cardItems: [],
       identityItems: [],
       secureNotes: [],
-      passwordObserver: new PasswordStrengthObserver(),
+      passwordObserver: new PasswordStrengthSubject(),
       passwordFeedback: "",
       mediator: null,
     }

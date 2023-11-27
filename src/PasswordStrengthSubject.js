@@ -1,4 +1,4 @@
-export default class PasswordStrengthObserver {
+export default class PasswordStrengthSubject {
   constructor() {
     this.subscribers = []
   }

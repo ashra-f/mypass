@@ -7,6 +7,4 @@ export default class VaultMediator {
     this.vaultComponent.selectedType = formType
     this.vaultComponent.openModal("Add New " + formType)
   }
-
-  // Add other methods to handle different interactions
 }

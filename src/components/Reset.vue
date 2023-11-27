@@ -84,7 +84,7 @@ import {
   FirstPetNameHandler,
   ChildhoodNicknameHandler,
 } from "../SecurityQuestionHandler"
-import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordStrengthSubject from "../PasswordStrengthSubject"
 import PasswordBuilder from "../PasswordBuilder"
 import SensitiveDataProxy from "@/SensitiveDataProxy"
 
@@ -103,7 +103,7 @@ export default {
       newPassword: "",
       repeatNewPassword: "",
       userDocId: null,
-      passwordObserver: new PasswordStrengthObserver(),
+      passwordObserver: new PasswordStrengthSubject(),
       passwordStrengthFeedback: "",
       newPasswordProxy: new SensitiveDataProxy(""),
       repeatNewPasswordProxy: new SensitiveDataProxy(""),

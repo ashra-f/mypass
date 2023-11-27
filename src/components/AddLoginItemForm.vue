@@ -56,7 +56,7 @@
 import { db } from "@/firebase/config"
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore"
 import Cookies from "js-cookie"
-import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordStrengthSubject from "../PasswordStrengthSubject"
 import PasswordBuilder from "../PasswordBuilder"
 import SensitiveDataProxy from "../SensitiveDataProxy"
 
@@ -68,7 +68,7 @@ export default {
       url: "",
       userRef: null,
       passwordFeedback: "",
-      passwordObserver: new PasswordStrengthObserver(),
+      passwordObserver: new PasswordStrengthSubject(),
     }
   },
   created() {

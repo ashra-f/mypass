@@ -42,7 +42,7 @@
 import { db } from "@/firebase/config"
 import { collection, addDoc } from "firebase/firestore"
 import SessionManager from "../SessionManager"
-import PasswordStrengthObserver from "../PasswordStrengthObserver"
+import PasswordStrengthSubject from "../PasswordStrengthSubject"
 import {
   TeacherNameHandler,
   FirstPetNameHandler,
@@ -66,7 +66,7 @@ export default {
       answers: ["", "", ""],
 
       passwordWarning: "",
-      passwordStrengthObserver: null,
+      PasswordStrengthSubject: null,
       passwordProxy: new SensitiveDataProxy(""),
     }
   },
@@ -81,8 +81,8 @@ export default {
     this.securityQuestions = this.securityQuestionHandlers.map(
       (handler) => handler.question
     )
-    this.passwordStrengthObserver = new PasswordStrengthObserver()
-    this.passwordStrengthObserver.subscribe(this.updatePasswordWarning)
+    this.PasswordStrengthSubject = new PasswordStrengthSubject()
+    this.PasswordStrengthSubject.subscribe(this.updatePasswordWarning)
   },
   methods: {
     async register() {
@@ -114,7 +114,7 @@ export default {
         .includeSpecialCharacters(true)
 
       let newPassword = builder.build()
-      this.passwordStrengthObserver.notify(newPassword)
+      this.PasswordStrengthSubject.notify(newPassword)
 
       // You can add additional logic here to handle the case if the password is still considered weak.
       this.password = newPassword
@@ -128,7 +128,7 @@ export default {
   },
   watch: {
     password(newVal) {
-      this.passwordStrengthObserver.notify(newVal)
+      this.PasswordStrengthSubject.notify(newVal)
       this.passwordProxy.setData(newVal)
     },
   },
