@@ -9,7 +9,15 @@
       </div>
       <div>
         <label for="password">Password:</label>
-        <input type="password" id="password" v-model="password" required />
+        <input
+          :type="passwordProxy.isDataMasked() ? 'password' : 'text'"
+          id="password"
+          v-model="passwordProxy.realData"
+          required
+        />
+        <button type="button" @click="togglePasswordVisibility">
+          {{ passwordProxy.isDataMasked() ? "Show Password" : "Hide Password" }}
+        </button>
       </div>
       <button type="submit">Login</button>
     </form>
@@ -25,6 +33,7 @@
 import { db } from "@/firebase/config"
 import { collection, query, where, getDocs } from "firebase/firestore"
 import SessionManager from "../SessionManager"
+import SensitiveDataProxy from "../SensitiveDataProxy"
 
 export default {
   name: "Login",
@@ -32,6 +41,7 @@ export default {
     return {
       email: "",
       password: "",
+      passwordProxy: new SensitiveDataProxy(""),
       loginMessage: "",
     }
   },
@@ -61,7 +71,7 @@ export default {
 
         querySnapshot.forEach((doc) => {
           const userData = doc.data()
-          if (userData.password === this.password) {
+          if (userData.password === this.passwordProxy.realData) {
             userExists = true
             const sessionManager = SessionManager.getInstance()
 
@@ -79,6 +89,14 @@ export default {
       } catch (error) {
         console.error("Login error:", error.message)
       }
+    },
+    togglePasswordVisibility() {
+      this.passwordProxy.toggleMask()
+    },
+  },
+  watch: {
+    password(newVal) {
+      this.passwordProxy.setData(newVal)
     },
   },
 }
