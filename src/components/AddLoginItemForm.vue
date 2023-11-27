@@ -13,8 +13,8 @@
       <div class="form-group">
         <div class="password-field">
           <input
-            :type="passwordFieldType"
-            v-model="password"
+            :type="passwordProxy.isDataMasked() ? 'password' : 'text'"
+            v-model="passwordProxy.realData"
             class="form-control"
             placeholder="Password"
             required
@@ -25,7 +25,7 @@
             class="btn-show-password"
             @click="togglePasswordVisibility"
           >
-            {{ passwordFieldType === "password" ? "Show" : "Hide" }}
+            {{ passwordProxy.isDataMasked() ? "Show" : "Hide" }}
           </button>
           <button
             type="button"
@@ -58,17 +58,17 @@ import { collection, query, where, getDocs, addDoc } from "firebase/firestore"
 import Cookies from "js-cookie"
 import PasswordStrengthObserver from "../PasswordStrengthObserver"
 import PasswordBuilder from "../PasswordBuilder"
+import SensitiveDataProxy from "../SensitiveDataProxy"
 
 export default {
   data() {
     return {
       username: "",
-      password: "",
+      passwordProxy: new SensitiveDataProxy(""),
       url: "",
       userRef: null,
       passwordFeedback: "",
       passwordObserver: new PasswordStrengthObserver(),
-      passwordFieldType: "password",
     }
   },
   created() {
@@ -97,7 +97,7 @@ export default {
     submitForm() {
       addDoc(collection(db, "Logins"), {
         username: this.username,
-        password: this.password,
+        password: this.passwordProxy.realData,
         url: this.url,
         userRef: this.userRef,
       })
@@ -110,14 +110,13 @@ export default {
         })
     },
     checkPasswordStrength() {
-      this.passwordObserver.notify(this.password)
+      this.passwordObserver.notify(this.passwordProxy.realData)
     },
     updatePasswordFeedback(feedback) {
       this.passwordFeedback = feedback
     },
     togglePasswordVisibility() {
-      this.passwordFieldType =
-        this.passwordFieldType === "password" ? "text" : "password"
+      this.passwordProxy.toggleMask()
     },
     generatePassword() {
       const builder = new PasswordBuilder()
@@ -127,7 +126,9 @@ export default {
         .includeLowerCaseLetters(true)
         .includeSpecialCharacters(true)
 
-      this.password = builder.build()
+      // Set the generated password directly into the proxy
+      this.passwordProxy.setData(builder.build())
+
       this.checkPasswordStrength()
     },
   },
